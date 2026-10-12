@@ -223,10 +223,12 @@ table.list tr.click:hover td{background:var(--surface-2)}
   <!-- KEYS -->
   <section data-panel="keys" hidden>
     <h1>Ключи ответов и школы</h1>
-    <p class="lead">Ключ вводится строкой букв по порядку заданий, например «ВБВАБГ…». Ученики с этим вариантом пересчитываются автоматически.</p>
+    <p class="lead">Ключ можно вписать прямо здесь строкой букв по порядку заданий, например «ВБВАБГ…», или загрузить из файла. Ученики с этим вариантом пересчитываются автоматически.</p>
     <div class="grid2">
       <div class="card" style="display:grid;gap:12px">
-        <div class="row"><label class="f" style="flex:1">Вариант<select id="kVar"></select></label><button class="btn" id="kAdd" style="align-self:flex-end">Новый вариант</button></div>
+        <div class="row"><label class="f" style="flex:1 1 140px">Вариант<select id="kVar"></select></label><label class="f" style="width:110px">Новый №<input id="kNum" inputmode="numeric" maxlength="2" placeholder="1–99"></label><button class="btn" id="kAdd" style="align-self:flex-end">Добавить вариант</button></div>
+        <div class="row"><label class="btn" for="kFile">Загрузить ключ из файла</label><input id="kFile" type="file" accept=".txt,.csv,.json,text/plain,application/json" hidden><button class="btn" id="kExport">Скачать все ключи файлом</button></div>
+        <p class="hint" style="margin:0">Файл ключа — обычный текст (.txt): четыре строки по порядку — математика (60 букв), окшоштуктар (30), окуу (30), грамматика (30). Первой строкой можно написать «Вариант 5». Нумерация вида «1-В, 2-Б» тоже подойдёт.</p>
         <label class="f">Название варианта<input id="kName"></label>
         <label class="f">Математика, 1–60 (А–Д) <span id="kc_math" class="hint"></span><textarea id="k_math" rows="2"></textarea></label>
         <label class="f">Окшоштуктар жана толуктоо, 1–30 (А–Г) <span id="kc_verbal" class="hint"></span><textarea id="k_verbal" rows="1"></textarea></label>
@@ -1016,8 +1018,12 @@ const MONTHS=['января','февраля','марта','апреля','ма�
 
 let db=null, downloads=null;
 let schoolDraft=null;
-const DEFAULT_CFG={"project": "Пробное тестирование ATLAS Education", "testDate": "2026-10-15", "subjects": [{"id": "M", "title": "Математика", "sections": ["Алгебра", "Арифметика", "Геометрия"], "skills": ["Умение выполнять преобразования числовых выражений и выражений с переменными", "Умение использовать изображение фигур в декартовой системе координат", "Умение находить значение функции по заданному значению аргумента", "Умение применять новые понятия и определения, новые формулы, новые операции", "Умение решать рациональные уравнения, системы уравнений, неравенства", "Умение применять свойства степени и выполнять действия с корнями", "Умение решать задачи на части, проценты, пропорции", "Умение выполнять арифметические действия с рациональными числами", "Умение применять свойства основных геометрических фигур и соотношения между их элементами", "Умение применять свойства целых чисел, решать задачи на вероятность и статистику"]}, {"id": "R", "title": "Чтение и понимание", "sections": ["Аналогии", "Дополнение предложений", "Чтение и понимание текста"], "skills": ["Умение анализировать отношения между понятиями, находить зависимость между словами в паре", "Умение понимать логические связи между различными частями высказывания", "Умение определить главную цель автора и основную мысль текста", "Умение находить нужную информацию в тексте", "Умение определить значение слов или выражений в зависимости от контекста", "Умение сделать вывод на основе информации текста", "Умение сделать вывод на основе информации отрывка", "Умение находить аргументы за или против заданного явления", "Умение сопоставить между собой предложенные части информации", "Умение определить причину заданного явления на основе информации текста"]}, {"id": "G", "title": "Грамматика кыргызского языка", "sections": ["Культура речи", "Лексика", "Морфология", "Орфография", "Пунктуация", "Синтаксис"], "skills": ["Умение применить в новых условиях знания, полученные в разделе «Культура речи»", "Умение определять значение слов в предложении, находить их синонимы, антонимы, омонимы, определять прямое и переносное значение", "Умение выбирать правильное употребление форм различных частей речи на основе анализа предложения", "Умение вставить соответствующие орфограммы в различные части речи на основе изученных правил", "Умение расставить соответствующие знаки препинания в предложении на основе изученных правил", "Умение выбрать союз, порядок слов и структуру предложения"]}], "subjectOf": {"math": "M", "verbal": "R", "reading": "R", "grammar": "G"}, "blueprint": {"math": [[1, 7], [2, 8], [1, 6], [1, 5], [1, 7], [0, 5], [2, 8], [1, 5], [0, 4], [2, 8], [0, 5], [1, 9], [0, 5], [1, 7], [0, 4], [0, 4], [2, 8], [2, 8], [1, 9], [0, 2], [1, 7], [0, 4], [0, 1], [2, 8], [0, 5], [2, 8], [1, 9], [0, 5], [2, 8], [0, 3], [1, 7], [1, 6], [1, 6], [1, 9], [0, 2], [0, 0], [0, 3], [0, 4], [1, 6], [1, 9], [2, 8], [2, 8], [0, 4], [1, 9], [2, 8], [1, 5], [1, 9], [0, 4], [1, 9], [2, 8], [0, 4], [1, 5], [0, 0], [0, 4], [2, 8], [1, 9], [2, 1], [2, 8], [2, 8], [0, 0]], "verbal": [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]], "reading": [[2, 2], [2, 2], [2, 3], [2, 4], [2, 3], [2, 5], [2, 1], [2, 5], [2, 4], [2, 4], [2, 2], [2, 2], [2, 9], [2, 7], [2, 3], [2, 9], [2, 7], [2, 1], [2, 5], [2, 4], [2, 2], [2, 2], [2, 4], [2, 3], [2, 7], [2, 7], [2, 8], [2, 1], [2, 8], [2, 6]], "grammar": [[0, 0], [3, 3], [2, 2], [3, 3], [3, 3], [0, 0], [2, 2], [4, 4], [4, 4], [4, 4], [4, 4], [4, 4], [0, 0], [0, 0], [5, 5], [5, 5], [2, 2], [2, 2], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [2, 2], [3, 3], [5, 5], [2, 2], [2, 2], [5, 5], [5, 5]]}, "schools": {}}, DEFAULT_V1={"name": "Вариант 1 (ОРТ, кыргызча)", "key": {"math": "ВВВАБГББАВБВБААГАБАВАГВАБВБАГБДДГВВБГВБААГБВДБГААГАБГБАДДВВД", "verbal": "ВАГББГАВГАБВАГВБГАВББВАГБВГАБВ", "reading": "АБВГГВБАВББГАВАГБВАГВАГБАВГБВА", "grammar": "ВГВААББГББГВГБГГАГВГВБАВААВБАБ"}};
-const state={cfg:DEFAULT_CFG, variants:{'1':DEFAULT_V1}, results:[], current:null, lastFrontId:null, queue:[], openId:null, confirmDel:false};
+const DEFAULT_CFG={"project": "Пробное тестирование ATLAS Education", "testDate": "2026-10-15", "subjects": [{"id": "M", "title": "Математика", "sections": ["Алгебра", "Арифметика", "Геометрия"], "skills": ["Умение выполнять преобразования числовых выражений и выражений с переменными", "Умение использовать изображение фигур в декартовой системе координат", "Умение находить значение функции по заданному значению аргумента", "Умение применять новые понятия и определения, новые формулы, новые операции", "Умение решать рациональные уравнения, системы уравнений, неравенства", "Умение применять свойства степени и выполнять действия с корнями", "Умение решать задачи на части, проценты, пропорции", "Умение выполнять арифметические действия с рациональными числами", "Умение применять свойства основных геометрических фигур и соотношения между их элементами", "Умение применять свойства целых чисел, решать задачи на вероятность и статистику"]}, {"id": "R", "title": "Чтение и понимание", "sections": ["Аналогии", "Дополнение предложений", "Чтение и понимание текста"], "skills": ["Умение анализировать отношения между понятиями, находить зависимость между словами в паре", "Умение понимать логические связи между различными частями высказывания", "Умение определить главную цель автора и основную мысль текста", "Умение находить нужную информацию в тексте", "Умение определить значение слов или выражений в зависимости от контекста", "Умение сделать вывод на основе информации текста", "Умение сделать вывод на основе информации отрывка", "Умение находить аргументы за или против заданного явления", "Умение сопоставить между собой предложенные части информации", "Умение определить причину заданного явления на основе информации текста"]}, {"id": "G", "title": "Грамматика кыргызского языка", "sections": ["Культура речи", "Лексика", "Морфология", "Орфография", "Пунктуация", "Синтаксис"], "skills": ["Умение применить в новых условиях знания, полученные в разделе «Культура речи»", "Умение определять значение слов в предложении, находить их синонимы, антонимы, омонимы, определять прямое и переносное значение", "Умение выбирать правильное употребление форм различных частей речи на основе анализа предложения", "Умение вставить соответствующие орфограммы в различные части речи на основе изученных правил", "Умение расставить соответствующие знаки препинания в предложении на основе изученных правил", "Умение выбрать союз, порядок слов и структуру предложения"]}], "subjectOf": {"math": "M", "verbal": "R", "reading": "R", "grammar": "G"}, "blueprint": {"math": [[1, 7], [2, 8], [1, 6], [1, 5], [1, 7], [0, 5], [2, 8], [1, 5], [0, 4], [2, 8], [0, 5], [1, 9], [0, 5], [1, 7], [0, 4], [0, 4], [2, 8], [2, 8], [1, 9], [0, 2], [1, 7], [0, 4], [0, 1], [2, 8], [0, 5], [2, 8], [1, 9], [0, 5], [2, 8], [0, 3], [1, 7], [1, 6], [1, 6], [1, 9], [0, 2], [0, 0], [0, 3], [0, 4], [1, 6], [1, 9], [2, 8], [2, 8], [0, 4], [1, 9], [2, 8], [1, 5], [1, 9], [0, 4], [1, 9], [2, 8], [0, 4], [1, 5], [0, 0], [0, 4], [2, 8], [1, 9], [2, 1], [2, 8], [2, 8], [0, 0]], "verbal": [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1]], "reading": [[2, 2], [2, 2], [2, 3], [2, 4], [2, 3], [2, 5], [2, 1], [2, 5], [2, 4], [2, 4], [2, 2], [2, 2], [2, 9], [2, 7], [2, 3], [2, 9], [2, 7], [2, 1], [2, 5], [2, 4], [2, 2], [2, 2], [2, 4], [2, 3], [2, 7], [2, 7], [2, 8], [2, 1], [2, 8], [2, 6]], "grammar": [[0, 0], [3, 3], [2, 2], [3, 3], [3, 3], [0, 0], [2, 2], [4, 4], [4, 4], [4, 4], [4, 4], [4, 4], [0, 0], [0, 0], [5, 5], [5, 5], [2, 2], [2, 2], [1, 1], [1, 1], [1, 1], [1, 1], [1, 1], [2, 2], [3, 3], [5, 5], [2, 2], [2, 2], [5, 5], [5, 5]]}, "schools": {}}, DEFAULT_V1={"name": "Вариант 01 (ОРТ, кыргызча)", "key": {"math": "ВВВАБГББАВБВБААГАБАВАГВАБВБАГБДДГВВБГВБААГБВДБГААГАБГБАДДВВД", "verbal": "ВАГББГАВГАБВАГВБГАВББВАГБВГАБВ", "reading": "АБВГГВБАВББГАВАГБВАГВАГБАВГБВА", "grammar": "ВГВААББГББГВГБГГАГВГВБАВААВБАБ"}}, DEFAULT_V2={"name": "Вариант 02 (ОРТ, на русском)", "key": {"math": "ВВВАБГББАВБВБААГАБАВАГВАБВБАГБДДГВВБГВБААГБВДБГААГАБГБАДДВВД", "verbal": "АБГВБАГВБВГБГАВГАВБАБГАВГБАВБГ", "reading": "БГАВГБАВГАВАГБВАГБВГАВБГВАБГВБ", "grammar": "БГГБГБАГВАВГВБАВГБААГВВГААБГАВ"}};
+const vid=x=>{const d=String(x==null?'':x).replace(/\D/g,'');return d?String(parseInt(d,10)):'';};
+const vn=x=>{const d=vid(x);return d?d.padStart(2,'0'):'';};
+const DEFAULT_VARS={'1':DEFAULT_V1,'2':DEFAULT_V2};
+function builtinVariants(){const o={};for(const k in DEFAULT_VARS){const v=DEFAULT_VARS[k];if(v&&v.key&&Object.keys(v.key).length)o[k]=v;}return o;}
+const state={cfg:DEFAULT_CFG, variants:builtinVariants(), results:[], current:null, lastFrontId:null, queue:[], openId:null, confirmDel:false};
 try{state.lastFrontId=localStorage.getItem('atlas.lastFront')}catch(e){}
 
 function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,3200)}
@@ -1056,7 +1062,7 @@ const f1=x=>(Math.round(x*10)/10).toFixed(1);
   if(!db){ setSync('без сохранения: войдите в claude.ai'); $('#localNote').hidden=false; return; }
   setSync('синхронизация…');
   db.doc('config/main').onSnapshot(s=>{state.cfg=s.exists?s.data():DEFAULT_CFG; setSync(state.cfg?'данные сохраняются на этом устройстве':'нет настроек теста'); fillConfigForm(); renderSchools(); renderRows(); fillFilters(); if(state.openId)openStudent(state.openId);},e=>setSync('ошибка: '+e.message));
-  db.collection('variants').onSnapshot(s=>{state.variants=s.empty?{'1':DEFAULT_V1}:{}; s.docs.forEach(d=>state.variants[d.id]=d.data()); fillKeyForm(); renderRows(); fillFilters(); if(state.openId)openStudent(state.openId);},e=>setSync('ошибка: '+e.message));
+  db.collection('variants').onSnapshot(s=>{state.variants=builtinVariants(); s.docs.forEach(d=>state.variants[d.id]=d.data()); fillKeyForm(); renderRows(); fillFilters(); if(state.openId)openStudent(state.openId);},e=>setSync('ошибка: '+e.message));
   db.collection('results').onSnapshot(s=>{state.results=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0)); renderRows(); fillFilters(); if(state.current&&state.current.page==='back')renderForm(); if(state.openId)openStudent(state.openId);},e=>setSync('ошибка: '+e.message));
 })();
 
@@ -1108,7 +1114,7 @@ function renderForm(){
         <label class="f">Фамилия<input id="ff_surname" value="${esc(f.surname)}"></label>
         <label class="f">Имя<input id="ff_name" value="${esc(f.name)}"></label>
         <label class="f">Код школы<input id="ff_school" value="${esc(f.school)}" inputmode="numeric" maxlength="4"></label>
-        <label class="f">Вариант<input id="ff_variant" value="${esc(f.variant)}" inputmode="numeric" maxlength="2"></label>
+        <label class="f">Вариант<input id="ff_variant" value="${esc(vn(f.variant))}" inputmode="numeric" maxlength="2"></label>
         <div class="f" style="justify-content:flex-end"><span class="hint" id="schoolName">${esc(schools[f.school]||'Код школы не найден в списке')}</span></div>
       </div>
       <div class="row"><b>Математика</b>${key?`<span class="pill">${c} из 60 · ${f1(100*c/60)}%</span>`:'<span class="pill warn">нет ключа для этого варианта</span>'}</div>
@@ -1116,7 +1122,7 @@ function renderForm(){
       ${cur.res.issues.length?`<div class="msg err">${cur.res.issues.map(esc).join('<br>')}</div>`:''}
       <div class="row"><button class="btn primary" id="saveFront">Сохранить стр. 1</button><span class="hint">${db?'Потом сфотографируйте стр. 2':'Без входа в claude.ai данные пропадут после закрытия страницы'}</span></div>
     </div>`;
-    ['surname','name','school','variant'].forEach(k=>$('#ff_'+k).addEventListener('input',e=>{f[k]=e.target.value.trim().toUpperCase(); if(k==='school')$('#schoolName').textContent=schools[f.school]||'Код школы не найден в списке'; if(k==='variant')renderForm();}));
+    ['surname','name','school','variant'].forEach(k=>$('#ff_'+k).addEventListener('input',e=>{f[k]=k==='variant'?vid(e.target.value):e.target.value.trim().toUpperCase(); if(k==='school')$('#schoolName').textContent=schools[f.school]||'Код школы не найден в списке'; if(k==='variant')renderForm();}));
     $('#saveFront').addEventListener('click',saveFront);
   }else{
     const cand=backCandidates();
@@ -1170,7 +1176,7 @@ function showResult(rec){
     <div class="hint">Справки по трём предметам — ниже. Все ученики сохраняются во вкладке «Результаты».</div></div>`;
   box.innerHTML=`<div class="card" style="margin-top:16px;display:grid;gap:14px">
     <div class="row"><h2 style="margin:0;flex:1">Результат: ${esc(rec.surname)} ${esc(rec.name)}</h2><button class="btn primary" id="resPdf">Скачать PDF</button></div>
-    ${sc?['M','R','G'].filter(k=>sc[k]).map(k=>`<div class="rep-scale">${reportHTML(rec,k,sc)}</div>`).join(''):`<div class="msg err">Для варианта ${esc(rec.variant)} нет ключа ответов. Добавьте его во вкладке «Ключи и школы».</div>`}
+    ${sc?['M','R','G'].filter(k=>sc[k]).map(k=>`<div class="rep-scale">${reportHTML(rec,k,sc)}</div>`).join(''):`<div class="msg err">Для варианта ${esc(vn(rec.variant))} нет ключа ответов. Добавьте его во вкладке «Ключи и школы».</div>`}
   </div>`;
   scaleReps(box);
   const dl=()=>makePdf([rec],`${rec.surname}_${rec.name}.pdf`);
@@ -1188,14 +1194,14 @@ function fillFilters(){
   const cs=$('#fSchool').value, cv=$('#fVar').value;
   $('#fSchool').innerHTML='<option value="">Все школы</option>'+codes.map(c=>`<option value="${esc(c)}">${esc(schools[c]||c)}</option>`).join(''); $('#fSchool').value=cs;
   const vs=[...new Set(state.results.map(r=>r.variant))].sort();
-  $('#fVar').innerHTML='<option value="">Все варианты</option>'+vs.map(v=>`<option value="${esc(v)}">Вариант ${esc(v)}</option>`).join(''); $('#fVar').value=cv;
+  $('#fVar').innerHTML='<option value="">Все варианты</option>'+vs.map(v=>`<option value="${esc(v)}">Вариант ${esc(vn(v))}</option>`).join(''); $('#fVar').value=cv;
 }
 function pctCell(s){if(!s)return '<td class="num"><span class="hint">—</span></td>';const p=s.pct;const cls=p>=75?'ok':p>=50?'warn':'bad';return `<td class="num"><span class="pill ${cls}">${f1(p)}%</span></td>`;}
 function renderRows(){
   const tb=$('#rows'); const list=filtered(); const schools=(state.cfg&&state.cfg.schools)||{};
   if(!state.results.length){tb.innerHTML=`<tr><td colspan="7"><div class="empty">${db?'Пока нет учеников. Отсканируйте первый бланк на вкладке «Сканер».':'Результаты хранятся на сайте и доступны после входа в claude.ai.'}</div></td></tr>`;return;}
   if(!list.length){tb.innerHTML='<tr><td colspan="7"><div class="empty">Никто не подходит под фильтр.</div></td></tr>';return;}
-  tb.innerHTML=list.map(r=>{const s=score(r)||{};return `<tr class="click" data-id="${r.id}" tabindex="0"><td><b>${esc(r.surname)}</b> ${esc(r.name)}</td><td>${esc(schools[r.school]||r.school)}</td><td>${esc(r.variant)}</td>${pctCell(s.M)}${pctCell(s.R)}${pctCell(s.G)}<td>${r.hasBack?'<span class="pill ok">2 стр.</span>':'<span class="pill warn">нет оборота</span>'}</td></tr>`}).join('');
+  tb.innerHTML=list.map(r=>{const s=score(r)||{};return `<tr class="click" data-id="${r.id}" tabindex="0"><td><b>${esc(r.surname)}</b> ${esc(r.name)}</td><td>${esc(schools[r.school]||r.school)}</td><td>${esc(vn(r.variant))}</td>${pctCell(s.M)}${pctCell(s.R)}${pctCell(s.G)}<td>${r.hasBack?'<span class="pill ok">2 стр.</span>':'<span class="pill warn">нет оборота</span>'}</td></tr>`}).join('');
   $$('#rows tr.click').forEach(tr=>{tr.addEventListener('click',()=>openStudent(tr.dataset.id));tr.addEventListener('keydown',e=>{if(e.key==='Enter')openStudent(tr.dataset.id)})});
 }
 function fmtDate(d){if(!d)return '';const [y,m,dd]=d.split('-').map(Number);return `${dd} ${MONTHS[m-1]} ${y} г.`;}
@@ -1227,7 +1233,7 @@ function openStudent(id){
   box.hidden=false;
   box.innerHTML=`<div class="card" style="margin-top:16px;display:grid;gap:14px">
     <div class="row"><h2 style="margin:0;flex:1">${esc(rec.surname)} ${esc(rec.name)}</h2><button class="btn" id="stClose">Закрыть</button></div>
-    <dl class="kv"><dt>Школа</dt><dd>${esc(schools[rec.school]||rec.school)}</dd><dt>Вариант</dt><dd>${esc(rec.variant)}${v?'':' — нет ключа'}</dd><dt>Бланк</dt><dd>${rec.hasBack?'обе страницы':'только стр. 1'}</dd></dl>
+    <dl class="kv"><dt>Школа</dt><dd>${esc(schools[rec.school]||rec.school)}</dd><dt>Вариант</dt><dd>${esc(vn(rec.variant))}${v?'':' — нет ключа'}</dd><dt>Бланк</dt><dd>${rec.hasBack?'обе страницы':'только стр. 1'}</dd></dl>
     <div class="row"><button class="btn primary" id="stPdf">Скачать справку (PDF)</button><button class="btn" id="stEdit">Изменить данные</button><button class="btn danger" id="stDel">Удалить</button></div>
     <div id="stEditBox"></div>
     ${sc?['M','R','G'].filter(k=>sc[k]).map(k=>`<div class="rep-scale">${reportHTML(rec,k,sc)}</div>`).join(''):'<div class="msg err">Нет ключа или настроек теста — справку построить нельзя.</div>'}
@@ -1237,8 +1243,8 @@ function openStudent(id){
   $('#stClose').addEventListener('click',()=>{box.hidden=true;state.openId=null;});
   $('#stPdf').addEventListener('click',()=>makePdf([rec],`${rec.surname}_${rec.name}.pdf`));
   $('#stDel').addEventListener('click',()=>{const eb=$('#stEditBox');eb.innerHTML=`<div class="confirm"><span>Удалить ученика без возможности восстановления?</span><button class="btn danger" id="delYes">Удалить</button><button class="btn" id="delNo">Отмена</button></div>`;$('#delNo').onclick=()=>eb.innerHTML='';$('#delYes').onclick=async()=>{try{await db.doc('results/'+rec.id).delete();toast('Удалено');box.hidden=true;state.openId=null;}catch(e){toast('Не удалось: '+e.message)}};});
-  $('#stEdit').addEventListener('click',()=>{const eb=$('#stEditBox');eb.innerHTML=`<div class="fields">${['surname:Фамилия','name:Имя','school:Код школы','variant:Вариант'].map(x=>{const[k,l]=x.split(':');return `<label class="f">${l}<input id="se_${k}" value="${esc(rec[k])}"></label>`}).join('')}<div class="row wide"><button class="btn primary" id="seSave">Сохранить</button></div></div>`;
-    $('#seSave').onclick=async()=>{const d={};['surname','name','school','variant'].forEach(k=>d[k]=$('#se_'+k).value.trim().toUpperCase());d.updatedAt=Date.now();try{await db.doc('results/'+rec.id).update(d);toast('Сохранено')}catch(e){toast('Не удалось: '+e.message)}};});
+  $('#stEdit').addEventListener('click',()=>{const eb=$('#stEditBox');eb.innerHTML=`<div class="fields">${['surname:Фамилия','name:Имя','school:Код школы','variant:Вариант'].map(x=>{const[k,l]=x.split(':');return `<label class="f">${l}<input id="se_${k}" value="${esc(k==='variant'?vn(rec[k]):rec[k])}"></label>`}).join('')}<div class="row wide"><button class="btn primary" id="seSave">Сохранить</button></div></div>`;
+    $('#seSave').onclick=async()=>{const d={};['surname','name','school','variant'].forEach(k=>d[k]=k==='variant'?vid($('#se_'+k).value):$('#se_'+k).value.trim().toUpperCase());d.updatedAt=Date.now();try{await db.doc('results/'+rec.id).update(d);toast('Сохранено')}catch(e){toast('Не удалось: '+e.message)}};});
   box.scrollIntoView({behavior:'smooth',block:'start'});
 }
 
@@ -1262,7 +1268,7 @@ $('#pdfAll').addEventListener('click',()=>makePdf(filtered(),'atlas_spravki.pdf'
 $('#csv').addEventListener('click',()=>{
   const schools=(state.cfg&&state.cfg.schools)||{};
   const head=['Фамилия','Имя','Школа','Вариант','Математика %','Чтение %','Грамматика %','Математика (ответы)','Окшоштуктар','Окуу','Грамматика (ответы)'];
-  const rows=filtered().map(r=>{const s=score(r)||{};return [r.surname,r.name,schools[r.school]||r.school,r.variant,s.M?f1(s.M.pct):'',s.R?f1(s.R.pct):'',s.G?f1(s.G.pct):'',...SECS.map(k=>(r.a&&r.a[k])||'')];});
+  const rows=filtered().map(r=>{const s=score(r)||{};return [r.surname,r.name,schools[r.school]||r.school,vn(r.variant),s.M?f1(s.M.pct):'',s.R?f1(s.R.pct):'',s.G?f1(s.G.pct):'',...SECS.map(k=>(r.a&&r.a[k])||'')];});
   const csv='﻿'+[head,...rows].map(r=>r.map(x=>`"${String(x).replace(/"/g,'""')}"`).join(';')).join('\r\n');
   saveFile('atlas_rezultaty.csv',new Blob([csv],{type:'text/csv;charset=utf-8'}));
 });
@@ -1270,19 +1276,48 @@ $('#csv').addEventListener('click',()=>{
 // ---------- keys & config ----------
 function fillKeyForm(){
   const sel=$('#kVar'); const ids=Object.keys(state.variants).sort((a,b)=>a-b); const cur=sel.value||ids[0]||'';
-  sel.innerHTML=ids.length?ids.map(i=>`<option value="${i}">Вариант ${i}</option>`).join(''):'<option value="">нет вариантов</option>'; sel.value=cur;
+  sel.innerHTML=ids.length?ids.map(i=>`<option value="${i}">Вариант ${vn(i)}</option>`).join(''):'<option value="">нет вариантов</option>'; sel.value=cur;
   const v=state.variants[cur]||{key:{}}; $('#kName').value=v.name||''; SECS.forEach(s=>{$('#k_'+s).value=(v.key||{})[s]||''; countKey(s);});
 }
 $('#kVar').addEventListener('change',()=>{const v=state.variants[$('#kVar').value]||{key:{}};$('#kName').value=v.name||'';SECS.forEach(s=>{$('#k_'+s).value=(v.key||{})[s]||'';countKey(s)});});
 function normKey(s,sec){return s.toUpperCase().replace(/A/g,'А').replace(/B/g,'В').replace(/[^АБВГД]/g,'');}
 function countKey(s){const v=normKey($('#k_'+s).value,s);const ok=v.length===SEC_LEN[s]&&[...v].every(c=>SEC_OPTS[s].includes(c));$('#kc_'+s).textContent=`${v.length}/${SEC_LEN[s]}`;$('#kc_'+s).style.color=ok?'var(--ok)':'var(--warn)';return ok;}
 SECS.forEach(s=>$('#k_'+s).addEventListener('input',()=>countKey(s)));
-$('#kAdd').addEventListener('click',()=>{const ids=Object.keys(state.variants).map(Number);const n=String(ids.length?Math.max(...ids)+1:1);if(Number(n)>99){toast('На бланке можно отметить варианты 1–99');return;}const sel=$('#kVar');sel.insertAdjacentHTML('beforeend',`<option value="${n}">Вариант ${n} (новый)</option>`);sel.value=n;$('#kName').value='Вариант '+n;SECS.forEach(s=>{$('#k_'+s).value='';countKey(s)});});
+function selectVariant(n,name){const sel=$('#kVar');if(![...sel.options].some(o=>o.value===n))sel.insertAdjacentHTML('beforeend',`<option value="${n}">Вариант ${vn(n)} (новый)</option>`);sel.value=n;const v=state.variants[n];$('#kName').value=name||(v&&v.name)||('Вариант '+vn(n));SECS.forEach(s=>{$('#k_'+s).value=(v&&v.key&&v.key[s])||'';countKey(s)});}
+$('#kAdd').addEventListener('click',()=>{const n=String(parseInt($('#kNum').value,10));if(!(Number(n)>=1&&Number(n)<=99)){toast('Впишите номер варианта от 1 до 99');return;}$('#kNum').value='';selectVariant(n);$('#kMsg').textContent='Впишите или загрузите ключ и нажмите «Сохранить ключ».';});
+async function saveVariant(id,name,key){
+  if(db){await db.doc('variants/'+id).set({name,key});} else {state.variants[id]={name,key};fillKeyForm();}
+}
+function parseKeyText(txt){
+  let variant=null; const m=txt.match(/вариант\D{0,3}(\d{1,2})/i); if(m)variant=String(parseInt(m[1],10));
+  const lines=txt.split(/\r?\n/).map(l=>l.replace(/вариант\D{0,3}\d{1,2}/ig,'')).map(l=>l.split(/[\s,;.:()\-–—\/|]+/).map(t=>t.replace(/\d+/g,'').toUpperCase().replace(/A/g,'А').replace(/B/g,'В')).filter(t=>t&&/^[АБВГД]+$/.test(t)).join('')).filter(l=>l.length);
+  let all=lines.join(''); const out={};
+  if(lines.length>=4&&lines[0].length===60){SECS.forEach((s,i)=>out[s]=lines[i]);}
+  else if(all.length===150){let p=0;SECS.forEach(s=>{out[s]=all.slice(p,p+SEC_LEN[s]);p+=SEC_LEN[s];});}
+  else return {error:`В файле найдено ${all.length} букв ответов, а нужно 150 (60+30+30+30).`};
+  return {variant,key:out};
+}
+$('#kFile').addEventListener('change',async e=>{
+  const f=e.target.files[0]; e.target.value=''; if(!f)return;
+  try{
+    const txt=await f.text();
+    if(/^\s*\{/.test(txt)){ const o=JSON.parse(txt); const vs=o.variants||(o.data?Object.fromEntries(Object.entries(o.data).filter(([k])=>k.startsWith('variants/')).map(([k,v])=>[k.slice(9),v])):null);
+      if(!vs||!Object.keys(vs).length)throw new Error('в файле нет ключей');
+      for(const [id,v] of Object.entries(vs)) await saveVariant(id,v.name||('Вариант '+vn(id)),v.key);
+      $('#kMsg').textContent=`Загружено вариантов: ${Object.keys(vs).length}.`; selectVariant(Object.keys(vs)[0]); return; }
+    const r=parseKeyText(txt); if(r.error){$('#kMsg').textContent=r.error;return;}
+    const id=r.variant||$('#kVar').value||'1'; selectVariant(id); SECS.forEach(s=>{$('#k_'+s).value=r.key[s];countKey(s)});
+    if(SECS.every(countKey)){await saveVariant(id,$('#kName').value.trim()||('Вариант '+vn(id)),r.key);$('#kMsg').textContent=`Ключ варианта ${vn(id)} загружен и сохранён.`;}
+    else $('#kMsg').textContent='Ключ загружен, но в каком-то поле не та длина — проверьте и сохраните.';
+  }catch(err){$('#kMsg').textContent='Не удалось прочитать файл: '+err.message;}
+});
+$('#kExport').addEventListener('click',()=>{const vs={};Object.entries(state.variants).forEach(([k,v])=>{if(v&&v.key&&Object.keys(v.key).length)vs[k]=v;});
+  if(!Object.keys(vs).length){toast('Нет сохранённых ключей');return;}
+  saveFile('atlas_klyuchi.json',new Blob([JSON.stringify({atlas:1,variants:vs})],{type:'application/json'}));});
 $('#kSave').addEventListener('click',async()=>{
-  if(!db){toast('Сохранение доступно после входа');return;}
   const id=$('#kVar').value; if(!id)return; const key={}; let ok=true; SECS.forEach(s=>{key[s]=normKey($('#k_'+s).value,s); if(!countKey(s))ok=false;});
   if(!ok){$('#kMsg').textContent='Проверьте длину ключей: в каждом поле должно быть ровно столько букв, сколько заданий.';return;}
-  try{await db.doc('variants/'+id).set({name:$('#kName').value.trim()||('Вариант '+id),key});$('#kMsg').textContent='Ключ сохранён.';}catch(e){$('#kMsg').textContent='Не сохранено: '+e.message;}
+  try{await saveVariant(id,$('#kName').value.trim()||('Вариант '+vn(id)),key);$('#kMsg').textContent='Ключ сохранён.';renderRows();}catch(e){$('#kMsg').textContent='Не сохранено: '+e.message;}
 });
 function renderSchools(){
   if(schoolDraft===null&&state.cfg) schoolDraft={...(state.cfg.schools||{})};
